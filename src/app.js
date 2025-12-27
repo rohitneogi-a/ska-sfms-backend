@@ -1,5 +1,7 @@
 import express from "express";
 import morgan from "morgan";
+import {authenticate} from "./middlewares/auth.middleware.js";
+import userRoutes from "./routes/user.routes.js"
 
 import authRoutes from "./routes/auth.routes.js";
 
@@ -13,4 +15,9 @@ app.get("/", async (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+
+app.use("/api/user", userRoutes);
+
+
+
 export default app;
