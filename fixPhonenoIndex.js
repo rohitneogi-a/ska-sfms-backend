@@ -1,7 +1,7 @@
 // import mongoose from "mongoose";
 // import User from "./src/models/User.model.js";
 
-// const MONGO_URI = "mongodb+srv://neogi_rohit:Rohit2002_@rohitcluster.pavo1.mongodb.net/ska_sfms"; // <-- update this
+// const MONGO_URI = ""; // <-- update this
 
 // async function fixIndex() {
 //   await mongoose.connect(MONGO_URI);
