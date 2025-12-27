@@ -1,5 +1,6 @@
 import User from "../models/User.model.js";
 import bcrypt from "bcryptjs";
+import {generateToken} from "../utils/jwt.js";
 
 export const register = async (req, res) => {
   try {
@@ -53,35 +54,45 @@ export const register = async (req, res) => {
   }
 };
 
-export const login = async (req, res) => {
+export const login = async (req,res)=>{
   try {
-    const { phoneno, password } = req.body;
+    const {phoneno, password} = req.body;
 
-    // Find user by phone number
-    const user = await User.findOne({
+    // Find the user by phone number
+    const user =  await User.findOne({
       phoneno,
     });
-    // If user not found
-    if (!user) {
-      return res.status(400).json({
-        message: "User not found ! Please register first.",
+    if(!user){
+      return res.status(404).json({
+        message: "User not found",
       });
     }
-    // Check password
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
+    // Compare the password
+    const isMatch =  await bcrypt.compare(password, user.password);
+    if(!isMatch){
       return res.status(401).json({
-        message: "Invalid password!",
+        message: "Invalid Password"
       });
     }
+    // Generate JWT token
+    const token = generateToken(user);
 
-    // Successful login
-    res.json({
+    res.status(200).json({
       message: "Login successful",
-    });
+      
+      user: {
+        id: user._id,
+        name: user.name,
+        phoneno: user.phoneno,
+        role: user.role
+      },
+      token,
+
+    })
   } catch (error) {
+
     res.status(500).json({
       message: "Internal server error",
-    });
+    })
   }
-};
+}
