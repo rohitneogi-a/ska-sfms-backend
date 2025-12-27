@@ -3,8 +3,16 @@ import bcrypt from "bcryptjs";
 
 export const register = async (req, res) => {
   try {
-    const { name, guardianName, phoneno, password, dob, subject, address, role } =
-      req.body;
+    const {
+      name,
+      guardianName,
+      phoneno,
+      password,
+      dob,
+      subject,
+      address,
+      role,
+    } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({
@@ -29,7 +37,7 @@ export const register = async (req, res) => {
       dob,
       subject,
       address,
-      role : role || "USER",
+      role: role || "USER",
     });
 
     await user.save();
@@ -39,6 +47,39 @@ export const register = async (req, res) => {
     });
   } catch (error) {
     console.error("Error registering user:", error);
+    res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
+export const login = async (req, res) => {
+  try {
+    const { phoneno, password } = req.body;
+
+    // Find user by phone number
+    const user = await User.findOne({
+      phoneno,
+    });
+    // If user not found
+    if (!user) {
+      return res.status(400).json({
+        message: "User not found ! Please register first.",
+      });
+    }
+    // Check password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({
+        message: "Invalid password!",
+      });
+    }
+
+    // Successful login
+    res.json({
+      message: "Login successful",
+    });
+  } catch (error) {
     res.status(500).json({
       message: "Internal server error",
     });
