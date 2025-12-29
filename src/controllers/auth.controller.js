@@ -15,10 +15,27 @@ export const register = async (req, res) => {
       role,
     } = req.body;
 
+    // Validate required fields
+    if (
+      !name ||
+      !guardianName ||
+      !phoneno ||
+      !password ||
+      !dob ||
+      !subject ||
+      !address
+    ) {
+      return res.status(400).json({
+        message: "All fields are required",
+      });
+    }
+
+    // Validate role
+    const validRoles = ["USER", "MODERATOR", "ADMIN"];
+    const userRole = validRoles.includes(role) ? role : "USER";
+
     // Check if user already exists
-    const existingUser = await User.findOne({
-      phoneno,
-    });
+    const existingUser = await User.findOne({ phoneno });
     if (existingUser) {
       return res.status(400).json({
         message: "User with this phone number already exists",
@@ -38,7 +55,7 @@ export const register = async (req, res) => {
       dob,
       subject,
       address,
-      role: role || "USER",
+      role: userRole,
     });
 
     await user.save();
