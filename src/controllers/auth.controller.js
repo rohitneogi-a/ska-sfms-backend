@@ -1,4 +1,4 @@
-import User from "../models/User.model.js";
+import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import {generateToken} from "../utils/jwt.js";
 
@@ -7,7 +7,7 @@ export const register = async (req, res) => {
     const {
       name,
       guardianName,
-      phoneno,
+      phoneNo,
       password,
       dob,
       subject,
@@ -19,7 +19,7 @@ export const register = async (req, res) => {
     if (
       !name ||
       !guardianName ||
-      !phoneno ||
+      !phoneNo ||
       !password ||
       !dob ||
       !subject ||
@@ -35,7 +35,7 @@ export const register = async (req, res) => {
     const userRole = validRoles.includes(role) ? role : "USER";
 
     // Check if user already exists
-    const existingUser = await User.findOne({ phoneno });
+    const existingUser = await User.findOne({ phoneNo });
     if (existingUser) {
       return res.status(400).json({
         message: "User with this phone number already exists",
@@ -50,7 +50,7 @@ export const register = async (req, res) => {
     const user = new User({
       name,
       guardianName,
-      phoneno,
+      phoneNo,
       password: hashedPassword,
       dob,
       subject,
@@ -73,11 +73,11 @@ export const register = async (req, res) => {
 
 export const login = async (req,res)=>{
   try {
-    const {phoneno, password} = req.body;
+    const {phoneNo, password} = req.body;
 
     // Find the user by phone number
     const user =  await User.findOne({
-      phoneno,
+      phoneNo,
     });
     if(!user){
       return res.status(404).json({
@@ -100,7 +100,7 @@ export const login = async (req,res)=>{
       user: {
         id: user._id,
         name: user.name,
-        phoneno: user.phoneno,
+        phoneNo: user.phoneNo,
         role: user.role
       },
       token,

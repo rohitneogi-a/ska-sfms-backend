@@ -13,7 +13,7 @@ const UserSchema = new Schema(
       required: true,
     },
 
-    phoneno: {
+    phoneNo: {
       type: String,
       unique: true,
       required: true,
@@ -37,6 +37,10 @@ const UserSchema = new Schema(
     address: {
       type: String,
       required: true,
+    },
+    profileImage :{
+      type: String,
+      default: "https://cdn-icons-png.flaticon.com/512/9131/9131529.png",
     },
 
     role: {
