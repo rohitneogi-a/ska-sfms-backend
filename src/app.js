@@ -1,23 +1,24 @@
-import express from "express";
-import morgan from "morgan";
-import {authenticate} from "./middlewares/auth.middleware.js";
-import userRoutes from "./routes/user.routes.js"
+import http from "http"
+import dotenv from "dotenv";
+dotenv.config();
+import {config} from "../constants.js"
+import app from "./server.js";
+import connectDB from "./config/db.js";
 
-import authRoutes from "./routes/auth.routes.js";
+// Create an HTTP server
+const httpServer = http.createServer(app);
 
-const app = express();
+connectDB()
+  .then(()=>{
+    httpServer.listen(config.port,()=>
+      console.log(`Server running on port ${config.port} `)
+    );
+    httpServer.on("error",(error)=>{
+      console.error("Error on the server: ", error);
+      throw error;
+    })
+  })
+  .catch((error)=>{
+    console.error("MongoDB Connection Failed: ", error)
+  })
 
-app.use(express.json());
-app.use(morgan("dev"));
-
-app.get("/", async (req, res) => {
-  res.send("Backend is running");
-});
-
-app.use("/api/auth", authRoutes);
-
-app.use("/api/user", userRoutes);
-
-
-
-export default app;
