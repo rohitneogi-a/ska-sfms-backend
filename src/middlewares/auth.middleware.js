@@ -1,7 +1,7 @@
 import expressAsyncHandler from 'express-async-handler';
 import jwt from 'jsonwebtoken';
 import {config} from "../../constants.js";
-import User from "../models/user.model.js";
+import User from '../models/user.model.js';
 import {sendServerError, sendUnauthorized} from "../utils/response.utils.js";
 
 
