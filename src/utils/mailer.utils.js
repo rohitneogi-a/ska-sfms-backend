@@ -28,7 +28,7 @@ export async function sendEmail(to, subject, text, html, attachments = []) {
   }
 }
 
-
+// Admin Registration and Login Messages
 export function adminRegisterMessage(fullName, email, password) {
   return `
 Dear ${fullName},
@@ -47,18 +47,41 @@ The Support Team
 }
 
 
-export function adminLoginMessage(fullName, email) {
+
+
+
+// User Registration and Login Messages
+
+
+
+
+
+
+
+// Moderator Registration and Login Messages
+export function moderatorRegisterMessage(fullName, email, password) {
   return `
 Dear ${fullName},
 
-You have successfully logged in to your admin account.
+Your moderator account has been successfully created.
 
-If you do not recognize this activity, please contact our support team immediately to secure your account.
+Login Details:
+• Email: ${email}
+• Password: ${password}
+
+If you did not request this account, please contact our support team immediately.
 
 Best regards,
 The Support Team
 `;
 }
+
+
+
+
+
+
+
 
 
 

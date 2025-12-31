@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import { config } from "../../constants.js";
 import User from "../models/user.model.js";
 import Admin from "../models/admin.model.js";
+import Moderator from "../models/moderator.model.js";
 import { sendServerError, sendUnauthorized } from "../utils/response.utils.js";
 
 export const verifyUser = expressAsyncHandler(async (req, res, next) => {
@@ -71,3 +72,41 @@ export const verifyAdmin = expressAsyncHandler(async (req, res, next) => {
     
   }
 });
+
+export const varifyModerator =  expressAsyncHandler(async (req,res,next) =>{
+  try {
+    const token = req.header("Authorization")?.replace("Bearer ", "");
+
+    if (!token) {
+      return sendUnauthorized(res);
+    }
+
+    let varifyInfo;
+    try {
+      varifyInfo = jwt.verify(token, config.accessTokenSecret);
+    } catch (error) {
+      return sendUnauthorized(res);
+    }
+    
+    if (varifyInfo?.role !== "Moderator") {
+      return sendUnauthorized(res);
+    }
+
+    const moderator = await Moderator.findById(
+      varifyInfo._id
+    ).select("-password -accessToken");
+
+    if (!moderator) {
+      return sendUnauthorized(res);
+    }
+
+    req.moderator = { ...moderator.toObject(), role: varifyInfo.role };
+
+    next();
+
+
+  } catch (error) {
+    return sendServerError(res);
+    
+  }
+})

@@ -9,7 +9,6 @@ import {
 
 import { constants, config } from "../../constants.js";
 import {
-  adminLoginMessage,
   adminRegisterMessage,
   sendEmail,
 } from "../utils/mailer.utils.js";
@@ -101,8 +100,7 @@ export const loginAdmin = expressAsyncHandler(async (req, res) => {
     }
 
 
-    const message = adminLoginMessage(admin.fullName, admin.email);
-    await sendEmail(normalizedEmail, "Admin Login Alert", message);
+
 
     const accessToken = await generateAccessToken(admin._id);
     return sendSuccess(res, constants.OK, "Login successful", {
