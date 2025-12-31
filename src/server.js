@@ -90,7 +90,7 @@ import userRoutes from "./routes/user.routes.js";
 import authRoutes from "./routes/auth.routes.js";
 
 app.use("/api/auth", authRoutes);
-
+// Use the routes
 app.use("/api/user", userRoutes);
 
 
