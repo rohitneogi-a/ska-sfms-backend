@@ -32,6 +32,11 @@ const adminSchema = new Schema(
       type: String,
       default: "https://cdn-icons-png.flaticon.com/512/9131/9131529.png",
     },
+    address: {
+      type: String,
+      required: [true, "Address is required"],
+      trim: true,
+    },
 
     password: {
       type: String,
@@ -46,17 +51,12 @@ const adminSchema = new Schema(
 );
 
 // Hash password before saving
-adminSchema.pre("save", async function (next) {
-  if (!this.password) return next();
-  if (!this.isModified("password")) return next();
+adminSchema.pre("save", async function () {
+  if (!this.password) return ;
+  if (!this.isModified("password")) return ;
 
-  try {
-    const salt = await bcrypt.genSalt(10);
+  const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (err) {
-    next(err);
-  }
 });
 
 //Password comparison
@@ -65,7 +65,7 @@ adminSchema.methods.isPasswordMatch = async function (password) {
 };
 
 // Generate Access Token
-userSchema.methods.generateAccessToken = function () {
+adminSchema.methods.generateAccessToken = function () {
   return jwt.sign(
     {
       _id: this._id,

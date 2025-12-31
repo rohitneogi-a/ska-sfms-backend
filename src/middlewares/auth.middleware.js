@@ -1,65 +1,73 @@
-import expressAsyncHandler from 'express-async-handler';
-import jwt from 'jsonwebtoken';
-import {config} from "../../constants.js";
-import User from '../models/user.model.js';
-import {sendServerError, sendUnauthorized} from "../utils/response.utils.js";
+import expressAsyncHandler from "express-async-handler";
+import jwt from "jsonwebtoken";
+import { config } from "../../constants.js";
+import User from "../models/user.model.js";
+import Admin from "../models/admin.model.js";
+import { sendServerError, sendUnauthorized } from "../utils/response.utils.js";
 
+export const verifyUser = expressAsyncHandler(async (req, res, next) => {
+  try {
+    const token = req.header("Authorization")?.replace("Bearer ", "");
 
-
-export const verifyUser  = expressAsyncHandler(async (req, res, next) =>{
-    try{
-        const token = req.header("Authorization")?.replace("Bearer ","");
-
-        if (!token){
-            return sendUnauthorized(res);
-        }
-
-        let varifyInfo;
-        try {
-            varifyInfo = jwt.verify(token, config.accessTokenSecret);
-        }catch(error){
-            return sendUnauthorized(res);
-        }
-
-        if (varifyInfo?.role !=="User") {
-            return sendUnauthorized(res);
-        }
-
-        const user = await User.findById(varifyInfo._id).select(
-            "-password -refreshToken"
-        )
-
-        if(!user){
-            return sendUnauthorized(res);
-        }
-
-        req.user ={ ...user.toObject(), role: varifyInfo.role};
-        next();
-    }catch(error){
-        return sendServerError(res);
+    if (!token) {
+      return sendUnauthorized(res);
     }
-})
-// export const authenticate = (req, res, next) => {
-//     const authHeader = req.headers.authorization;
 
-//     if (!authHeader || !authHeader.startsWith("Bearer")){
-//         return res.status(401).json({
-//             message: "Unauthorized: No token provided"
-//         })
-//     }
+    let varifyInfo;
+    try {
+      varifyInfo = jwt.verify(token, config.accessTokenSecret);
+    } catch (error) {
+      return sendUnauthorized(res);
+    }
 
-//     const token = authHeader.split(" ")[1];
+    if (varifyInfo?.role !== "User") {
+      return sendUnauthorized(res);
+    }
 
-//     try {
-//         const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-//         req.user = {
-//             id: decoded.id,
-//             role: decoded.role,
-//         };
-//         next();
-//     } catch (error) {
-//         return res.status(401).json({
-//             message: "Unauthorized: Invalid token"
-//         })
-//     }
-// }
+    const user = await User.findById(varifyInfo._id).select(
+      "-password -refreshToken"
+    );
+
+    if (!user) {
+      return sendUnauthorized(res);
+    }
+
+    req.user = { ...user.toObject(), role: varifyInfo.role };
+    next();
+  } catch (error) {
+    return sendServerError(res);
+  }
+});
+
+export const verifyAdmin = expressAsyncHandler(async (req, res, next) => {
+  try {
+    const token = req.header("Authorization")?.replace("Bearer ", "");
+
+    if (!token) {
+      return sendUnauthorized(res);
+    }
+
+    let varifyInfo;
+    try {
+      varifyInfo = jwt.verify(token, config.accessTokenSecret);
+    } catch (error) {
+      return sendUnauthorized(res);
+    }
+
+    if (varifyInfo?.role !== "Admin") {
+      return sendUnauthorized(res);
+    }
+    
+    const admin = await Admin.findById(varifyInfo._id).select("-password -accessToken");
+
+    if (!admin) {
+        return sendUnauthorized(res);
+    }
+    req.admin = { ...admin.toObject(), role: varifyInfo.role };
+    next(); 
+    
+  } catch (error) {
+    return sendServerError(res);
+    
+  }
+});

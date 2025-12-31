@@ -86,10 +86,12 @@ app.get("/logs", (req,res)=>{
 
 // Import the routes
 import userRoutes from "./routes/user.routes.js";
+import adminRoutes from "./routes/admin.routes.js";
 
-// import authRoutes from "./routes/auth.routes.js";
+// Use the admin routes
+app.use("/api/admin", adminRoutes);
 
-// app.use("/api/auth", authRoutes);
+
 // Use the routes
 app.use("/api/user", userRoutes);
 
