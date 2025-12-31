@@ -1,7 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { config } from "../../constants.js"; // instead of "dotenv"
+import { config } from "../../constants.js"; 
 const userSchema = new Schema(
   {
     fullName: {
@@ -43,6 +43,9 @@ const userSchema = new Schema(
       type: String,
       default: "https://cdn-icons-png.flaticon.com/512/9131/9131529.png",
     },
+    accessToken :{
+        type: String,
+    }
   },
   { timestamps: true }
 );
