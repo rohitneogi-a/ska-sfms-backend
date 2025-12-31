@@ -61,7 +61,7 @@ export const registerAdmin = expressAsyncHandler(async (req, res) => {
       "Admin Account Created",
       message
     );
-    
+
     return sendSuccess(res, constants.CREATED, "Admin registered successfully");
   } catch (error) {
     return sendServerError(res, error);
@@ -118,4 +118,21 @@ export const loginAdmin = expressAsyncHandler(async (req, res) => {
   } catch (error) {
     return sendServerError(res, error);
   }
+});
+
+// Get Admin Profile
+export const getAdminProfile = expressAsyncHandler(async (req, res) => {
+
+    try {
+        const admin = req.admin;
+
+        return sendSuccess(res,
+        constants.OK,
+        "Admin profile fetched successfully",
+        admin
+        )
+    } catch (error) {
+        return sendServerError(res, error);
+    }
+
 });
