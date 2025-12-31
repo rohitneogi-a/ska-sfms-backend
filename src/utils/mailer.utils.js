@@ -32,10 +32,13 @@ export async function sendEmail(to, subject, text, html, attachments = []) {
 export function adminRegisterMessage(fullName, email, password) {
   return `
 Dear ${fullName},
+
 Your admin account has been successfully created.
+
 Login Details:
 • Email: ${email}
 • Password: ${password}
+
 If you did not request this account, please contact our support team immediately.
 
 Best regards,
