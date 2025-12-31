@@ -24,7 +24,7 @@ const generateAccessToken = async (userId) => {
   return accessToken;
 };
 
-
+// 
 export const registerUser = expressAsyncHandler(async (req,res)=>{
   try{
     const {fullName,guardianName, phoneNo, password, dob, subject, address} = req.body;
@@ -113,10 +113,17 @@ export const loginUser = expressAsyncHandler(async (req,res)=>{
 })
 
 
-// export const getProfile = expressAsyncHandler (async (res,req) =>{
-//   try {
-//     let user = req.user;
+export const getProfile = expressAsyncHandler (async (req, res) =>{
+  try {
+    let user = req.user;
 
-//     if(!user.profil)
-//   }
-// })
+    return sendSuccess(
+      res,
+      constants.OK,
+      "User profile fetched successfully",
+      {user}
+    );
+  }catch (error){
+    return sendServerError (res, error);
+  }
+})

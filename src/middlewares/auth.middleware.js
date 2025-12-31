@@ -21,7 +21,7 @@ export const verifyUser  = expressAsyncHandler(async (req, res, next) =>{
             return sendUnauthorized(res);
         }
 
-        if (varifyInfo?.role !=="USER") {
+        if (varifyInfo?.role !=="User") {
             return sendUnauthorized(res);
         }
 
