@@ -7,55 +7,115 @@ import {
   sendUnauthorized,
 } from "../utils/response.utils.js";
 
-import {constants, config } from "../../constants.js";
+import { constants, config } from "../../constants.js";
+import {
+  adminLoginMessage,
+  adminRegisterMessage,
+  sendEmail,
+} from "../utils/mailer.utils.js";
 
 // Generate Access Token
 const generateAccessToken = async (adminId) => {
-    const admin = await Admin.findById(adminId);
-    if (!admin) throw new Error("Admin not found");
-    const accessToken = admin.generateAccessToken();
-    return accessToken;
-}
+  const admin = await Admin.findById(adminId);
+  if (!admin) throw new Error("Admin not found");
+  const accessToken = admin.generateAccessToken();
+  return accessToken;
+};
 
 // Admin Registration
 export const registerAdmin = expressAsyncHandler(async (req, res) => {
-    try {
-        const { fullName, email, phoneNo, address, password } = req.body;
-        if (!fullName || !email || !phoneNo || !address || !password) {
-            return sendError(
-                res,
-                constants.VALIDATION_ERROR,
-                "All fields are required"
-            );
-        }
-
-        const normalizedEmail = email.trim().toLowerCase();
-
-        // Check if the admin already exists
-        const existingAdmin = await Admin.findOne({
-            $or: [{ email: normalizedEmail }, { phoneNo }],
-        });
-        if (existingAdmin) {
-            return sendError(
-                res,
-                constants.CONFLICT,
-                "Admin with this email or phone number already exists"
-            );
-        }
-
-        await Admin.create({
-            fullName : fullName.trim(),
-            email: normalizedEmail,
-            phoneNo: phoneNo.trim(),
-            address: address.trim(),
-            password,
-        });
-        return sendSuccess(
-            res,
-            constants.CREATED,
-            "Admin registered successfully"
-        );
-    }catch (error) {
-        return sendServerError(res, error);
+  try {
+    const { fullName, email, phoneNo, address, password } = req.body;
+    if (!fullName || !email || !phoneNo || !address || !password) {
+      return sendError(
+        res,
+        constants.VALIDATION_ERROR,
+        "All fields are required"
+      );
     }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // Check if the admin already exists
+    const existingAdmin = await Admin.findOne({
+      $or: [{ email: normalizedEmail }, { phoneNo }],
+    });
+    if (existingAdmin) {
+      return sendError(
+        res,
+        constants.CONFLICT,
+        "Admin with this email or phone number already exists"
+      );
+    }
+
+    await Admin.create({
+      fullName: fullName.trim(),
+      email: normalizedEmail,
+      phoneNo: phoneNo.trim(),
+      address: address.trim(),
+      password,
+    });
+    const message = adminRegisterMessage(fullName, normalizedEmail, password);
+    await sendEmail(
+      normalizedEmail,
+      "Admin Account Created",
+      message
+    );
+    
+    return sendSuccess(res, constants.CREATED, "Admin registered successfully");
+  } catch (error) {
+    return sendServerError(res, error);
+  }
+});
+
+// Admin Login
+export const loginAdmin = expressAsyncHandler(async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return sendError(
+        res,
+        constants.VALIDATION_ERROR,
+        "Email and password are required"
+      );
+    }
+    const normalizedEmail = email.trim().toLowerCase();
+    const admin = await Admin.findOne({ email: normalizedEmail });
+
+    if (!admin) {
+      return sendError(
+        res,
+        constants.UNAUTHORIZED,
+        "Invalid email or password"
+      );
+    }
+
+    const isValid = await admin.isPasswordMatch(password);
+    if (!isValid) {
+      return sendError(
+        res,
+        constants.UNAUTHORIZED,
+        "Invalid email or password"
+      );
+    }
+
+
+    const message = adminLoginMessage(admin.fullName, admin.email);
+    await sendEmail(normalizedEmail, "Admin Login Alert", message);
+
+    const accessToken = await generateAccessToken(admin._id);
+    return sendSuccess(res, constants.OK, "Login successful", {
+      admin: {
+        id: admin._id,
+        fullName: admin.fullName,
+        email: admin.email,
+        phoneNo: admin.phoneNo,
+        address: admin.address,
+      },
+      accessToken,
+    });
+  } catch (error) {
+    return sendServerError(res, error);
+  }
 });
