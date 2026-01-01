@@ -1,4 +1,3 @@
-
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -9,8 +8,12 @@ import fs from "fs";
 // Initialize express app
 const app = express();
 
-// Create logs directory if it doesn't exist
-const logDirectory = path.join(process.cwd(), "logs");
+// Create logs directory in temp location or skip on Render
+const logDirectory =
+  process.env.NODE_ENV === "production"
+    ? "/tmp/logs" // Use /tmp on Render (ephemeral)
+    : path.join(process.cwd(), "logs");
+
 if (!fs.existsSync(logDirectory)) {
   fs.mkdirSync(logDirectory, { recursive: true });
 }
@@ -42,7 +45,7 @@ const allowedDomains = [
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin) return callback(null, true); // allow non-browser requests like Postman
+      if (!origin) return callback(null, true);
 
       if (allowedDomains.includes(origin)) {
         callback(null, true); // allow the request
@@ -63,16 +66,16 @@ app.get("/", async (req, res) => {
   });
 });
 
-app.get("/logs", (req,res)=>{
+app.get("/logs", (req, res) => {
   const logFilePath = path.join(logDirectory, "access.log");
 
   // Read last 100 lines from the log file
-  fs.readFile (logFilePath, "utf8", (err, data)=>{
-    if(err){
+  fs.readFile(logFilePath, "utf8", (err, data) => {
+    if (err) {
       return res.status(500).json({
-        success:false,
-        message:"Error reading log file",
-      })
+        success: false,
+        message: "Error reading log file",
+      });
     }
 
     const lines = data.trim().split("\n");
@@ -80,32 +83,25 @@ app.get("/logs", (req,res)=>{
 
     res.setHeader("Content-Type", "text/plain");
     res.send(last100Lines);
-  })
-})
-
+  });
+});
 
 // Import the routes
 import userRoutes from "./routes/user.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
 import moderatorRoutes from "./routes/moderator.routes.js";
 
-
-// Use the admin routes
-app.use("/api/admin", adminRoutes);
-
-// Use the moderator routes
-app.use("/api/moderator", moderatorRoutes);
-
 // Use the routes
+app.use("/api/admin", adminRoutes);
+app.use("/api/moderator", moderatorRoutes);
 app.use("/api/user", userRoutes);
 
-
 // Handle 404 errors
-app.use((req,res)=>{
+app.use((req, res) => {
   return res.status(404).json({
     success: false,
     message: "Route not found",
-  })
-})
+  });
+});
 
 export default app;
