@@ -1,9 +1,9 @@
 import http from "http"
 import dotenv from "dotenv";
 dotenv.config();
-import {config} from "../constants.js"
+import {config} from "./constants.js"
 import app from "./server.js";
-import connectDB from "./config/db.js";
+import connectDB from "./src/config/db.js";
 
 // Create an HTTP server
 const httpServer = http.createServer(app);
