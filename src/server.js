@@ -87,10 +87,14 @@ app.get("/logs", (req,res)=>{
 // Import the routes
 import userRoutes from "./routes/user.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
+import moderatorRoutes from "./routes/moderator.routes.js";
+
 
 // Use the admin routes
 app.use("/api/admin", adminRoutes);
 
+// Use the moderator routes
+app.use("/api/moderator", moderatorRoutes);
 
 // Use the routes
 app.use("/api/user", userRoutes);
