@@ -72,3 +72,46 @@ export const registerModerator = expressAsyncHandler(async (req, res) => {
     return sendServerError(res, error);
   }
 });
+
+// Moderator Login
+export const loginModerator = expressAsyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return sendError(
+      res,
+      constants.VALIDATION_ERROR,
+      "Email and password are required"
+    );
+  }
+
+  const moderator = await Moderator.findOne({ email });
+  if (!moderator) {
+    return sendError(res, constants.UNAUTHORIZED, "Invalid email or password");
+  }
+
+  const isMatch = await moderator.isPasswordMatch(password);
+  if (!isMatch) {
+    return sendError(res, constants.UNAUTHORIZED, "Invalid email or password");
+  }
+
+  const accessToken = await generateAccessToken(moderator._id);
+
+  // Save token to moderator document
+  moderator.accessToken = accessToken;
+  await moderator.save();
+
+  const moderatorData = {
+    _id: moderator._id,
+    fullName: moderator.fullName,
+    email: moderator.email,
+    phoneNo: moderator.phoneNo,
+    address: moderator.address,
+    profileImage: moderator.profileImage,
+  };
+
+  return sendSuccess(res, constants.OK, "Login successful", {
+    moderator: moderatorData,
+    accessToken,
+  });
+});
