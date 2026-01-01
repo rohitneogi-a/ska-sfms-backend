@@ -11,11 +11,8 @@ import {
   sendUnauthorized,
 } from "../utils/response.utils.js";
 
-import {constants, config } from "../../constants.js";
+import { constants, config } from "../../constants.js";
 import jwt from "jsonwebtoken";
-
-
-
 
 const generateAccessToken = async (userId) => {
   const user = await User.findById(userId);
@@ -24,12 +21,21 @@ const generateAccessToken = async (userId) => {
   return accessToken;
 };
 
-// 
-export const registerUser = expressAsyncHandler(async (req,res)=>{
-  try{
-    const {fullName,guardianName, phoneNo, password, dob, subject, address} = req.body;
+//
+export const registerUser = expressAsyncHandler(async (req, res) => {
+  try {
+    const { fullName, guardianName, phoneNo, password, dob, subject, address } =
+      req.body;
 
-    if(!fullName || !guardianName || !phoneNo || !password || !dob || !subject || !address){
+    if (
+      !fullName ||
+      !guardianName ||
+      !phoneNo ||
+      !password ||
+      !dob ||
+      !subject ||
+      !address
+    ) {
       return sendError(
         res,
         constants.VALIDATION_ERROR,
@@ -39,10 +45,10 @@ export const registerUser = expressAsyncHandler(async (req,res)=>{
 
     // Check if the user already exist
     const existingUser = await User.findOne({
-      $or:[{phoneNo}],
+      $or: [{ phoneNo }],
     });
 
-    if(existingUser){
+    if (existingUser) {
       return sendError(
         res,
         constants.CONFLICT,
@@ -57,24 +63,20 @@ export const registerUser = expressAsyncHandler(async (req,res)=>{
       password,
       dob,
       subject,
-      address
+      address,
     });
 
-    return sendSuccess(
-      res,
-      constants.CREATED,
-      "User registered successfully"
-    );
-  }catch(error){
-    sendServerError(res, error)
+    return sendSuccess(res, constants.CREATED, "User registered successfully");
+  } catch (error) {
+    sendServerError(res, error);
   }
-})
+});
 
-export const loginUser = expressAsyncHandler(async (req,res)=>{
+export const loginUser = expressAsyncHandler(async (req, res) => {
   try {
-    const {phoneNo, password} = req.body;
+    const { phoneNo, password } = req.body;
 
-    if(!phoneNo || !password){
+    if (!phoneNo || !password) {
       return sendError(
         res,
         constants.VALIDATION_ERROR,
@@ -82,38 +84,25 @@ export const loginUser = expressAsyncHandler(async (req,res)=>{
       );
     }
 
-    const user = await User.findOne({phoneNo});
+    const user = await User.findOne({ phoneNo });
 
-    if(!user){
+    if (!user) {
       return sendError(res, constants.NOT_FOUND, "User not found");
     }
 
-    if(!(await user.isPasswordMatch(password))){
-      return sendError (
-        res,
-        constants.UNAUTHORIZED,
-        "Invalid credentials"
-      )
+    if (!(await user.isPasswordMatch(password))) {
+      return sendError(res, constants.UNAUTHORIZED, "Invalid credentials");
     }
 
     const accessToken = user.generateAccessToken();
 
-    return sendSuccess(
-      res, constants.OK,
-      "Login successful",
-      {accessToken}
-    )
-
+    return sendSuccess(res, constants.OK, "Login successful", { accessToken });
   } catch (error) {
-
-    return sendServerError(res,error);
-
-    
+    return sendServerError(res, error);
   }
-})
+});
 
-
-export const getProfile = expressAsyncHandler (async (req, res) =>{
+export const getProfile = expressAsyncHandler(async (req, res) => {
   try {
     let user = req.user;
 
@@ -121,9 +110,9 @@ export const getProfile = expressAsyncHandler (async (req, res) =>{
       res,
       constants.OK,
       "User profile fetched successfully",
-      {user}
+      { user }
     );
-  }catch (error){
-    return sendServerError (res, error);
+  } catch (error) {
+    return sendServerError(res, error);
   }
-})
+});
