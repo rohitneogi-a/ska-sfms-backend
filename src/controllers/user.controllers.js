@@ -2,7 +2,7 @@ import expressAsyncHandler from "express-async-handler";
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 
-import User from "../models/user.model.js";
+import User from "../models/user.model.js"; // Capital U to match filename
 
 import {
   sendSuccess,
