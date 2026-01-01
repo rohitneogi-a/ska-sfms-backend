@@ -73,7 +73,7 @@ export const verifyAdmin = expressAsyncHandler(async (req, res, next) => {
   }
 });
 
-export const varifyModerator =  expressAsyncHandler(async (req,res,next) =>{
+export const verifyModerator =  expressAsyncHandler(async (req,res,next) =>{
   try {
     const token = req.header("Authorization")?.replace("Bearer ", "");
 

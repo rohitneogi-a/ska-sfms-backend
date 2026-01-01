@@ -115,3 +115,31 @@ export const loginModerator = expressAsyncHandler(async (req, res) => {
     accessToken,
   });
 });
+
+// Moderator Profile
+export const getModeratorProfile = expressAsyncHandler(async(req,res) =>{
+  try {
+    const moderator = req.moderator;
+
+    // Exclude sensitive fields
+    const moderatorData = {
+      _id: moderator._id,
+      fullName: moderator.fullName,
+      email: moderator.email,
+      phoneNo: moderator.phoneNo,
+      address: moderator.address,
+      profileImage: moderator.profileImage,
+      createdAt: moderator.createdAt,
+      updatedAt: moderator.updatedAt
+    };
+
+    return sendSuccess(
+      res,
+      constants.OK,
+      "Moderator profile fetched successfully",
+      { moderator: moderatorData }
+    );
+  } catch (error) {
+    return sendServerError(res, error);
+  }
+})
