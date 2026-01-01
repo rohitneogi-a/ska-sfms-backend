@@ -62,7 +62,7 @@ export const constants = {
   
 export const config = {
     port: String(process.env.PORT),
-    uri: String(process.env.MONGODB_URI),
+    uri: String(process.env.MONGO_URI),
     accessTokenSecret: String(process.env.ACCESS_TOKEN_SECRET),
     accessTokenExpiry: process.env.ACCESS_TOKEN_EXPIRY || "1d",
     refreshTokenSecret: String(process.env.REFRESH_TOKEN_SECRET),
