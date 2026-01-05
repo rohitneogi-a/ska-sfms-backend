@@ -37,7 +37,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Allowed domains for CORS
 const allowedDomains = [
-  "https://example.com", // production domain
+  "https://ska-student-manager.netlify.app", // production domain
   "http://localhost:5173", // for development
   "http://localhost:5174", // for development
 ];
