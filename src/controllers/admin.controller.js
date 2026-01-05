@@ -54,12 +54,12 @@ export const registerAdmin = expressAsyncHandler(async (req, res) => {
       address: address.trim(),
       password,
     });
-    const message = adminRegisterMessage(fullName, normalizedEmail, password);
-    await sendEmail(
-      normalizedEmail,
-      "Admin Account Created",
-      message
-    );
+    // const message = adminRegisterMessage(fullName, normalizedEmail, password);
+    // await sendEmail(
+    //   normalizedEmail,
+    //   "Admin Account Created",
+    //   message
+    // );
 
     return sendSuccess(res, constants.CREATED, "Admin registered successfully");
   } catch (error) {

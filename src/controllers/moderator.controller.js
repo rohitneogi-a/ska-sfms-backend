@@ -27,9 +27,9 @@ const generateAccessToken = async (moderatorId) => {
 // Moderator Registration
 export const registerModerator = expressAsyncHandler(async (req, res) => {
   try {
-    const { fullName, email, phoneNo, address } = req.body;
+    const { fullName, email, phoneNo, address, password } = req.body;
 
-    if (!fullName || !email || !phoneNo || !address) {
+    if (!fullName || !email || !phoneNo || !address || !password) {
       return sendError(
         res,
         constants.VALIDATION_ERROR,
@@ -49,18 +49,16 @@ export const registerModerator = expressAsyncHandler(async (req, res) => {
       );
     }
 
-    const password = generateRandomPassword();
-
     const newModerator = await Moderator.create({
       fullName: fullName.trim(),
       email: email.trim().toLowerCase(),
       phoneNo: phoneNo.trim(),
       address: address.trim(),
-      password,
+      password: password,
     });
 
-    const message = moderatorRegisterMessage(fullName, email, password);
-    await sendEmail(email, "Moderator Account Created", message);
+    // const message = moderatorRegisterMessage(fullName, email, password);
+    // await sendEmail(email, "Moderator Account Created", message);
 
     return sendSuccess(
       res,
