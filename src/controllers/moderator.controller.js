@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import expressAsyncHandler from "express-async-handler";
 import Moderator from "../models/moderator.model.js";
+import User from "../models/user.model.js"; 
 
 import {
   sendSuccess,
@@ -141,3 +142,44 @@ export const getModeratorProfile = expressAsyncHandler(async(req,res) =>{
     return sendServerError(res, error);
   }
 })
+
+// Add Student (by Moderator)
+export const addStudent = expressAsyncHandler(async (req, res)=>{
+  try {
+    const {
+      fullName,
+      guardianName,
+      phoneNo,
+      password,
+      dob,
+      subject,
+      address, 
+    } = req.body;
+
+    if (!fullName || !guardianName || !phoneNo || !password || !dob || !subject || !address){
+      return sendError(res, constants.VALIDATION_ERROR, "All fields are required to add a student");
+    }
+    
+    const existing = await User.findOne({phoneNo: phoneNo.trim()});
+    if (existing){
+      return sendError(res, constants.CONFLICT, "A student with this phone number already exists");
+    }
+
+    const newUser = await User.create({
+      fullName: fullName.trim(),
+      guardianName: guardianName.trim(),
+      phoneNo: phoneNo.trim(),
+      password,
+      dob,
+      subject: subject.trim(),
+      address: address.trim(),
+      createdBy: req.moderator._id,
+      createdByModel: "Moderator"
+    });
+    
+    return sendSuccess(res, constants.CREATED, "Student added successfully", newUser);
+
+  } catch (error) {
+    return sendServerError(res, error);
+  }
+});

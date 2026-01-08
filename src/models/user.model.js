@@ -45,6 +45,14 @@ const userSchema = new Schema(
     },
     accessToken :{
         type: String,
+    },
+    createdBy: {
+      type : mongoose.Schema.Types.ObjectId,
+      refPath : "createdByModel"
+    },
+    createdByModel: {
+      type : String,
+      enum : ["Admin", "Moderator"]
     }
   },
   { timestamps: true }
