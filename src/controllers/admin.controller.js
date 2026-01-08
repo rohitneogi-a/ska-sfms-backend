@@ -6,6 +6,7 @@ import {
   sendServerError,
   sendUnauthorized,
 } from "../utils/response.utils.js";
+import User from "../models/user.model.js";
 
 import { constants, config } from "../../constants.js";
 import {
@@ -134,3 +135,23 @@ export const getAdminProfile = expressAsyncHandler(async (req, res) => {
     }
 
 });
+
+// Get All Students
+export const getAllStudents = expressAsyncHandler(async (req, res)=>{
+  try {
+    const students = await User.find({
+      createdByModel : {$ne: "Moderator"}
+    }).select("-password -accessToken")
+    .populate("createdBy", "fullName  phoneNo ");
+
+    return sendSuccess(
+      res,
+      constants.OK,
+      "Students fetched successfully",
+       students 
+    )
+
+  } catch (error) {
+    return sendServerError(res, error);
+  }
+})
