@@ -1,5 +1,6 @@
 import expressAsyncHandler from "express-async-handler";
 import Admin from "../models/admin.model.js";
+import Moderator from "../models/moderator.model.js";
 import {
   sendSuccess,
   sendError,
@@ -9,10 +10,7 @@ import {
 import User from "../models/user.model.js";
 
 import { constants, config } from "../../constants.js";
-import {
-  adminRegisterMessage,
-  sendEmail,
-} from "../utils/mailer.utils.js";
+import { adminRegisterMessage, sendEmail } from "../utils/mailer.utils.js";
 
 // Generate Access Token
 const generateAccessToken = async (adminId) => {
@@ -100,9 +98,6 @@ export const loginAdmin = expressAsyncHandler(async (req, res) => {
       );
     }
 
-
-
-
     const accessToken = await generateAccessToken(admin._id);
     return sendSuccess(res, constants.OK, "Login successful", {
       admin: {
@@ -121,37 +116,54 @@ export const loginAdmin = expressAsyncHandler(async (req, res) => {
 
 // Get Admin Profile
 export const getAdminProfile = expressAsyncHandler(async (req, res) => {
+  try {
+    const admin = req.admin;
 
-    try {
-        const admin = req.admin;
-
-        return sendSuccess(res,
-        constants.OK,
-        "Admin profile fetched successfully",
-        admin
-        )
-    } catch (error) {
-        return sendServerError(res, error);
-    }
-
+    return sendSuccess(
+      res,
+      constants.OK,
+      "Admin profile fetched successfully",
+      admin
+    );
+  } catch (error) {
+    return sendServerError(res, error);
+  }
 });
 
 // Get All Students
-export const getAllStudents = expressAsyncHandler(async (req, res)=>{
+export const getAllStudents = expressAsyncHandler(async (req, res) => {
   try {
     const students = await User.find({
-      createdByModel : {$ne: "Moderator"}
-    }).select("-password -accessToken")
-    .populate("createdBy", "fullName  phoneNo ");
+      createdByModel: { $ne: "Moderator" },
+    })
+      .select("-password -accessToken")
+      .populate("createdBy", "fullName  phoneNo ");
 
     return sendSuccess(
       res,
       constants.OK,
       "Students fetched successfully",
-       students 
-    )
-
+      students
+    );
   } catch (error) {
     return sendServerError(res, error);
   }
-})
+});
+
+// get All Moderators
+export const getAllModerators = expressAsyncHandler(async (req, res) => {
+  try {
+    const moderators = await Moderator.find({}).select(
+      "-password -accessToken"
+    );
+
+    return sendSuccess(
+      res,
+      constants.OK,
+      "Moderators fetched successfully",
+      moderators
+    );
+  } catch (error) {
+    return sendServerError(res, error);
+  }
+});
