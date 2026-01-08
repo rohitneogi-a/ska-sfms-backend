@@ -2,7 +2,7 @@ import express from "express";
 import {
   registerModerator,
   loginModerator,
-  getModeratorProfile,addStudent
+  getModeratorProfile,addStudent,getStudents
 } from "../controllers/moderator.controller.js";
 import {verifyUser,verifyAdmin,verifyModerator} from "../middlewares/auth.middleware.js";
 
@@ -17,6 +17,7 @@ router.route("/profile").get(verifyModerator, getModeratorProfile);
 
 // Student Management Routes
 router.route("/addStudent").post(verifyModerator, addStudent);
+router.route("/students").get(verifyModerator, getStudents);
 
 
 export default router;

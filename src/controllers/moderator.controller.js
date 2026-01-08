@@ -183,3 +183,22 @@ export const addStudent = expressAsyncHandler(async (req, res)=>{
     return sendServerError(res, error);
   }
 });
+
+// Get Moderator Students
+
+export const  getStudents = expressAsyncHandler(async (req, res)=>{
+  try {
+    const students = await User.find({
+      createdBy: req.moderator._id,
+    }).select("-password -accessToken");
+
+    return sendSuccess(
+      res,
+      constants.OK,
+      "Students fetched successfully",
+       students 
+    )
+  } catch (error) {
+    return sendServerError(res, error);
+  }
+})
