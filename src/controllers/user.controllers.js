@@ -2,7 +2,7 @@ import expressAsyncHandler from "express-async-handler";
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 
-import User from "../models/user.model.js"; // Capital U to match filename
+import User from "../models/user.model.js"; 
 
 import {
   sendSuccess,
@@ -43,10 +43,10 @@ export const registerUser = expressAsyncHandler(async (req, res) => {
       );
     }
 
-    // Check if the user already exist
-    const existingUser = await User.findOne({
-      $or: [{ phoneNo }],
-    });
+    const normalizedPhoneNo = phoneNo.trim();
+
+    // Check if the user already exists
+    const existingUser = await User.findOne({ phoneNo: normalizedPhoneNo });
 
     if (existingUser) {
       return sendError(
@@ -56,17 +56,32 @@ export const registerUser = expressAsyncHandler(async (req, res) => {
       );
     }
 
-    await User.create({
-      fullName,
-      guardianName,
-      phoneNo,
+    const newUser = await User.create({
+      fullName: fullName.trim(),
+      guardianName: guardianName.trim(),
+      phoneNo: normalizedPhoneNo,
       password,
       dob,
-      subject,
-      address,
+      subject: subject.trim(),
+      address: address.trim(),
     });
 
-    return sendSuccess(res, constants.CREATED, "User registered successfully");
+    // Remove sensitive fields before sending
+    const userResponse = {
+      _id: newUser._id,
+      fullName: newUser.fullName,
+      guardianName: newUser.guardianName,
+      phoneNo: newUser.phoneNo,
+      dob: newUser.dob,
+      subject: newUser.subject,
+      address: newUser.address,
+      profileImage: newUser.profileImage,
+      paymentStatus: newUser.paymentStatus,
+      createdAt: newUser.createdAt,
+      updatedAt: newUser.updatedAt,
+    };
+
+    return sendSuccess(res, constants.CREATED, "User registered successfully", userResponse);
   } catch (error) {
     sendServerError(res, error);
   }

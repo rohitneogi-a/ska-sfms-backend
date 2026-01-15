@@ -35,6 +35,12 @@ const paymentSchema = new Schema(
       enum: ["DUE", "PAID"],
       default: "PAID",
     },
+    receiptNo:{
+      type: String,
+      required: true,
+      unique: true,
+      default:"REC-"+Date.now().toString().slice(-6)
+    },
 
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
