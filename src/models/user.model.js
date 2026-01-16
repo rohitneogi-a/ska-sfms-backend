@@ -53,11 +53,6 @@ const userSchema = new Schema(
     createdByModel: {
       type : String,
       enum : ["Admin", "Moderator"]
-    },
-    paymentStatus:{
-      type: String,
-      enum: ["DUE", "PAID"],
-      default: "DUE",
     }
 
   },

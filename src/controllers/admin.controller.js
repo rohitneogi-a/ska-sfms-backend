@@ -133,11 +133,21 @@ export const getAdminProfile = expressAsyncHandler(async (req, res) => {
 // Get All Students
 export const getAllStudents = expressAsyncHandler(async (req, res) => {
   try {
-    const students = await User.find({
+    const { year } = req.query;
+    const filter = {
       createdByModel: { $ne: "Moderator" },
-    })
+    };
+
+    if (year) {
+      const start = new Date(`${year}-01-01T00:00:00.000Z`);
+      const end = new Date(`${Number(year) + 1}-01-01T00:00:00.000Z`);
+      filter.createdAt = { $gte: start, $lt: end };
+    }
+
+    const students = await User.find(filter)
       .select("-password -accessToken")
-      .populate("createdBy", "fullName  phoneNo ");
+      .populate("createdBy", "fullName phoneNo")
+      .sort({ createdAt: 1 }); // Sort by join date
 
     return sendSuccess(
       res,

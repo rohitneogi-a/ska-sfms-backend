@@ -4,6 +4,7 @@ import {registerUser,loginUser,getProfile} from "../controllers/user.controllers
 
 import { verifyUser } from "../middlewares/auth.middleware.js";
 import { authorize } from "../middlewares/rbac.middleware.js";
+import { getMyMonthlyStatus } from "../controllers/payment.controller.js";
 
 
 const router = Router();
@@ -12,6 +13,7 @@ const router = Router();
 router.route("/register").post(registerUser);
 router.route("/login").post(loginUser);
 router.route("/profile").get(verifyUser, getProfile);
+router.route("/myPayments").get(verifyUser,getMyMonthlyStatus);
 
 
 export default router;
