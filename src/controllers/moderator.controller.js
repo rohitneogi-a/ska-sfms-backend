@@ -202,3 +202,30 @@ export const  getStudents = expressAsyncHandler(async (req, res)=>{
     return sendServerError(res, error);
   }
 })
+
+
+// Delete Moderator
+export const  deleteModerator = expressAsyncHandler(async (req,res)=>{
+  try {
+    const {id} = req.params;
+    if(!id){
+      return sendError(res, constants.VALIDATION_ERROR, "Moderator ID is required");
+    }
+
+    const moderator = await Moderator.findById(id);
+    if(!moderator){
+      return sendError(res, constants.NOT_FOUND, "Moderator not found");
+    }
+
+    await User.deleteMany({createdBy: moderator._id});
+
+    await Moderator.findByIdAndDelete(id);
+
+    return sendSuccess(res, constants.OK, "Moderator and associated students deleted successfully");
+
+
+  } catch (error) {
+    
+    return sendServerError(res, error);
+  }
+})
