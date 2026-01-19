@@ -25,9 +25,9 @@ export const getMyMonthlyStatus = expressAsyncHandler(async (req, res) => {
 
         let payments;
         if (month) {
-            payments = await Payment.find({ user: userId, year, month });
+            payments = await Payment.find({ userId: userId, year, month });
         } else {
-            payments = await Payment.find({ user: userId, year });
+            payments = await Payment.find({ userId: userId, year });
         }
 
         const paymentMap = {};
@@ -41,15 +41,20 @@ export const getMyMonthlyStatus = expressAsyncHandler(async (req, res) => {
             if (paymentMap[month]) {
                 result.push({
                     month,
+                    year,
                     status: "PAID",
                     amount: paymentMap[month].amount,
-                    date: paymentMap[month].date,
+                    date: paymentMap[month].paymentDate,
                     receiptNo: paymentMap[month].receiptNo,
                 });
             } else {
                 result.push({
                     month,
+                    year,
                     status: "DUE",
+                    date: null,
+                    amount: null,
+                    receiptNo: null,
                 });
             }
         } else {
@@ -58,15 +63,20 @@ export const getMyMonthlyStatus = expressAsyncHandler(async (req, res) => {
                 if (paymentMap[m]) {
                     result.push({
                         month: m,
+                        year,
                         status: "PAID",
                         amount: paymentMap[m].amount,
-                        date: paymentMap[m].date,
+                        date: paymentMap[m].paymentDate,
                         receiptNo: paymentMap[m].receiptNo,
                     });
                 } else {
                     result.push({
                         month: m,
+                        year,
                         status: "DUE",
+                        date: null,
+                        amount: null,
+                        receiptNo: null,
                     });
                 }
             }
@@ -83,7 +93,7 @@ export const getMyMonthlyStatus = expressAsyncHandler(async (req, res) => {
     }
 });
 
-export const getUserPayments = expressAsyncHandler (async (req, res)=>{
+export const getUserPayments = expressAsyncHandler(async (req, res) => {
     try {
         // Use req.params.id for admin, fallback to req.user._id for user
         const userId = req.params.id || (req.user && req.user._id);
@@ -99,9 +109,9 @@ export const getUserPayments = expressAsyncHandler (async (req, res)=>{
 
         let payments;
         if (month) {
-            payments = await Payment.find({ user: userId, year, month });
+            payments = await Payment.find({ userId: userId, year, month });
         } else {
-            payments = await Payment.find({ user: userId, year });
+            payments = await Payment.find({ userId: userId, year });
         }
 
         const paymentMap = {};
@@ -114,15 +124,20 @@ export const getUserPayments = expressAsyncHandler (async (req, res)=>{
             if (paymentMap[month]) {
                 result.push({
                     month,
+                    year,
                     status: "PAID",
                     amount: paymentMap[month].amount,
-                    date: paymentMap[month].date,
+                    date: paymentMap[month].paymentDate,
                     receiptNo: paymentMap[month].receiptNo,
                 });
             } else {
                 result.push({
                     month,
+                    year,
                     status: "DUE",
+                    date: null,
+                    amount: null,
+                    receiptNo: null,
                 });
             }
         } else {
@@ -130,15 +145,20 @@ export const getUserPayments = expressAsyncHandler (async (req, res)=>{
                 if (paymentMap[m]) {
                     result.push({
                         month: m,
+                        year,
                         status: "PAID",
                         amount: paymentMap[m].amount,
-                        date: paymentMap[m].date,
+                        date: paymentMap[m].paymentDate,
                         receiptNo: paymentMap[m].receiptNo,
                     });
                 } else {
                     result.push({
                         month: m,
+                        year,
                         status: "DUE",
+                        date: null,
+                        amount: null,
+                        receiptNo: null,
                     });
                 }
             }
@@ -151,6 +171,42 @@ export const getUserPayments = expressAsyncHandler (async (req, res)=>{
             result
         );
     } catch (error) {
+        return sendServerError(res, error);
+    }
+})
+
+export const addPaymentByAdmin = expressAsyncHandler (async (req,res)=>{
+    try {
+        const {userId,year,month,amount,date,receiptNo} = req.body;
+
+        if(!userId || !year || !month || !amount || !date || !receiptNo){
+            return sendError(res,constants.VALIDATION_ERROR,"All fields are required");
+        }
+
+        const existingPayment = await Payment.findOne({user: userId, year, month});
+        if(existingPayment){
+            return sendError(res,constants.CONFLICT,"Payment already exists for this user and month");
+        }
+
+        const newPayment = await Payment.create({
+            userId,
+            amount,
+            year,
+            month,
+            date,
+            receiptNo,
+            status: "PAID",
+            createdBy: req.admin._id,
+            createdByModel: "Admin"        
+        })
+        return sendSuccess(
+            res,
+            constants.CREATED,
+            "Payment added successfully",
+            newPayment
+        )
+    } catch (error) {
+        
         return sendServerError(res, error);
     }
 })

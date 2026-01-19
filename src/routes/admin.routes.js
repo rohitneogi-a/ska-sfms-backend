@@ -4,10 +4,10 @@ import {
   loginAdmin,
   getAdminProfile,
   getAllStudents,
-  getAllModerators,
+  getAllModerators
 } from "../controllers/admin.controller.js";
 import { verifyAdmin } from "../middlewares/auth.middleware.js";
-import { getUserPayments } from "../controllers/payment.controller.js";
+import { getUserPayments ,addPaymentByAdmin} from "../controllers/payment.controller.js";
 
 const router = express.Router();
 
@@ -22,5 +22,7 @@ router.route("/allStudentsAdmin").get(verifyAdmin, getAllStudents);
 router.route("/allModerators").get(verifyAdmin, getAllModerators);
 
 router.route("/:id/payments").get(verifyAdmin, getUserPayments);
+
+router.route("/addPayment").post(verifyAdmin,addPaymentByAdmin)
 
 export default router;
