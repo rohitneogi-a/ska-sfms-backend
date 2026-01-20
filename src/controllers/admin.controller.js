@@ -130,10 +130,10 @@ export const getAdminProfile = expressAsyncHandler(async (req, res) => {
   }
 });
 
-// Get All Students
+// Get All Students (with pagination)
 export const getAllStudents = expressAsyncHandler(async (req, res) => {
   try {
-    const { year } = req.query;
+    const { year, page = 1, limit = 10 } = req.query;
     const filter = {
       createdByModel: { $ne: "Moderator" },
     };
@@ -144,16 +144,31 @@ export const getAllStudents = expressAsyncHandler(async (req, res) => {
       filter.createdAt = { $gte: start, $lt: end };
     }
 
-    const students = await User.find(filter)
-      .select("-password -accessToken")
-      .populate("createdBy", "fullName phoneNo")
-      .sort({ createdAt: 1 }); // Sort by join date
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    const [students, total] = await Promise.all([
+      User.find(filter)
+        .select("-password -accessToken")
+        .populate("createdBy", "fullName phoneNo")
+        .sort({ createdAt: 1 })
+        .skip(skip)
+        .limit(parseInt(limit)),
+      User.countDocuments(filter),
+    ]);
 
     return sendSuccess(
       res,
       constants.OK,
       "Students fetched successfully",
-      students
+      {
+        students,
+        pagination: {
+          total,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          totalPages: Math.ceil(total / parseInt(limit)),
+        },
+      }
     );
   } catch (error) {
     return sendServerError(res, error);

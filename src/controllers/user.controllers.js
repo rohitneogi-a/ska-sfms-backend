@@ -24,7 +24,7 @@ const generateAccessToken = async (userId) => {
 //
 export const registerUser = expressAsyncHandler(async (req, res) => {
   try {
-    const { fullName, guardianName, phoneNo, password, dob, subject, address } =
+    const { fullName, guardianName, phoneNo, password, dob, subject, address, gender } =
       req.body;
 
     if (
@@ -34,7 +34,8 @@ export const registerUser = expressAsyncHandler(async (req, res) => {
       !password ||
       !dob ||
       !subject ||
-      !address
+      !address ||
+      !gender
     ) {
       return sendError(
         res,
@@ -64,6 +65,7 @@ export const registerUser = expressAsyncHandler(async (req, res) => {
       dob,
       subject: subject.trim(),
       address: address.trim(),
+      gender,
     });
 
     // Remove sensitive fields before sending
@@ -75,6 +77,7 @@ export const registerUser = expressAsyncHandler(async (req, res) => {
       dob: newUser.dob,
       subject: newUser.subject,
       address: newUser.address,
+      gender: newUser.gender,
       profileImage: newUser.profileImage,
       paymentStatus: newUser.paymentStatus,
       createdAt: newUser.createdAt,

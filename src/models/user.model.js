@@ -53,6 +53,11 @@ const userSchema = new Schema(
     createdByModel: {
       type : String,
       enum : ["Admin", "Moderator"]
+    },
+    gender: {
+      type: String,
+      required: true,
+      enum: ["Male", "Female", "Other"],
     }
 
   },
